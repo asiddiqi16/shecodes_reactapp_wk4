@@ -1,25 +1,53 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import axios from "axios";
+import Weather from "./Weather";
 
-function App() {
+export default function App() {
+  [city, setCity] = useState("");
+  [weather, setWeather] = useState(null);
+  function showTemp(response) {
+    console.log(response.data);
+    let temp = response.data.temperature.current;
+    let condition = response.data.condition.description;
+    let humidity = response.data.temperature.humidity;
+    let windSpeed = response.data.wind.speed;
+    let weatherIcon = response.data.condition.icon_url;
+    let weather = [
+      {
+        temperature: temp,
+        desc: condition,
+        humidity: humidity,
+        wind: windSpeed,
+        icon: weatherIcon,
+      },
+    ];
+    setWeather(weather);
+  }
+  function showWeather(event) {
+    event.preventDefault();
+
+    let apiKey = "483ecb596o30da81tf76d2a4bf19d4a6";
+    let apiURL = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}`;
+    axios.get(apiURL).then(showTemp);
+  }
+  function updateCity(event) {
+    setCity(event.target.value);
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Weather App</h1>
+
+      <form onSubmit={showWeather}>
+        <input
+          type="text"
+          placeholder="Enter a city..."
+          required
+          onChange={updateCity}
+        />
+        <input type="submit" value="Search" />
+      </form>
+      <Weather weather={weather} />
     </div>
   );
 }
-
-export default App;
